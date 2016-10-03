@@ -1,1 +1,1 @@
-"# lempel-ziv-welch" 
+Implements coding by LZW algorithm
