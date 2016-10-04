@@ -47,7 +47,7 @@ public class Encoder {
                 // ... и добавляем значение ключа предыдущего цикла.
                 for (Map.Entry<String, Integer> word : dictionary.entrySet()) {
                     if (previous.equals(word.getKey())) {
-                        encodedText.append(word.getValue()).append(" ");
+                        encodedText.append(word.getValue()).append('\n');
                         break;
                     }
                 }
