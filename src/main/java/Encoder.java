@@ -21,7 +21,7 @@ public class Encoder {
             text = "";
         }
         dictionary = DictionaryBuilder.build(text);
-        FileWorker.write("encoded.txt", encode(text));
+        FileWorker.write("encoded.txt", encodee(text));
     }
 
     private static String encode(String text) {
@@ -43,6 +43,7 @@ public class Encoder {
             if (count == dictionary.size()) {
                 dictionary.put(buffer.toString(), count);
                 buffer = new StringBuilder().append(text.charAt(i));
+                System.out.println(buffer.toString());
 
                 // ... и добавляем значение ключа предыдущего цикла.
                 for (Map.Entry<String, Integer> word : dictionary.entrySet()) {
@@ -64,5 +65,54 @@ public class Encoder {
             }
         }
         return encodedText.toString();
+    }
+
+    private static String encodee(String text) {
+        StringBuilder encodedText = new StringBuilder();
+        StringBuilder tempSymbol = new StringBuilder(text.charAt(0));
+        int tempCode = -1;
+        int prevCode = -1;
+        int offset = 0;
+        if (text.length() < 2) return "0";
+        char next = text.charAt(1);
+
+        int i = 0;
+        while (i < text.length()) {
+            if ((tempCode = search(tempSymbol.toString())) == -1) {
+                dictionary.put(tempSymbol.toString(), dictionary.size());
+                encodedText.append(prevCode).append('\n');
+                tempSymbol = new StringBuilder(next);
+                i += offset;
+                if (i < text.length() - 1) {
+                    next = text.charAt(i + 1);
+                    offset = 0;
+                } else {
+                    encodedText.append(search(tempSymbol.toString()));
+                    break;
+                }
+            } else {
+                prevCode = tempCode;
+                tempSymbol.append(next);
+                offset++;
+                if (i < text.length() - 1) {
+                    next = text.charAt(i + 1);
+                } else {
+                    encodedText.append(search(tempSymbol.toString()));
+                    break;
+                }
+            }
+        }
+        return encodedText.toString();
+    }
+
+    private static int search(String s) {
+        int code = -1;
+        for (Map.Entry<String, Integer> word : dictionary.entrySet()) {
+            if (s.equals(word.getKey())) {
+                code = word.getValue();
+                break;
+            }
+        }
+        return code;
     }
 }
