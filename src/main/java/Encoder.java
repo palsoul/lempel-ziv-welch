@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * @author: Bauka23
@@ -21,10 +20,11 @@ public class Encoder {
             text = "";
         }
         dictionary = DictionaryBuilder.build(text);
-        FileWorker.write("encoded.txt", encodee(text));
+        FileWorker.write("encoded.txt", encode(text));
     }
 
-    private static String encode(String text) {
+    // Old version, doesn't works!!!
+    /*private static String encode(String text) {
         StringBuilder encodedText = new StringBuilder();
         String previous;
         StringBuilder buffer = new StringBuilder();
@@ -65,46 +65,49 @@ public class Encoder {
             }
         }
         return encodedText.toString();
-    }
+    }*/
 
-    private static String encodee(String text) {
+    /**
+     *
+     * @param text  Text to encode
+     * @return      encoded text
+     */
+
+    private static String encode(String text) {
         StringBuilder encodedText = new StringBuilder();
-        StringBuilder tempSymbol = new StringBuilder(text.charAt(0));
-        int tempCode = -1;
+        StringBuilder tempSymbol = new StringBuilder(String.valueOf(text.charAt(0)));
+        int tempCode;
         int prevCode = -1;
         int offset = 0;
         if (text.length() < 2) return "0";
-        char next = text.charAt(1);
 
         int i = 0;
-        while (i < text.length()) {
+        while (i + offset < text.length()) {
             if ((tempCode = search(tempSymbol.toString())) == -1) {
                 dictionary.put(tempSymbol.toString(), dictionary.size());
                 encodedText.append(prevCode).append('\n');
-                tempSymbol = new StringBuilder(next);
+                tempSymbol = new StringBuilder(String.valueOf(text.charAt(i + offset)));
                 i += offset;
-                if (i < text.length() - 1) {
-                    next = text.charAt(i + 1);
-                    offset = 0;
-                } else {
-                    encodedText.append(search(tempSymbol.toString()));
-                    break;
-                }
+                offset = 0;
             } else {
                 prevCode = tempCode;
-                tempSymbol.append(next);
                 offset++;
-                if (i < text.length() - 1) {
-                    next = text.charAt(i + 1);
-                } else {
+                if (i + offset < text.length())
+                    tempSymbol.append(String.valueOf(text.charAt(i + offset)));
+                else
                     encodedText.append(search(tempSymbol.toString()));
-                    break;
-                }
             }
         }
         return encodedText.toString();
     }
 
+    /**
+     *
+     * @param s     The symbols to search from dictionary
+     *
+     * @return      Value of code of symbols from dictionary.
+     *              If symbols don't exist in dictionary, return -1
+     */
     private static int search(String s) {
         int code = -1;
         for (Map.Entry<String, Integer> word : dictionary.entrySet()) {
